@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+.env
+.env.*
+.ipynb_checkpoints
+build
+dist
+wheels
+*.egg-info
