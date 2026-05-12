@@ -3,15 +3,16 @@ from datetime import date
 
 from supabase import create_client, Client
 
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_SECRET_KEY", "")
-
 FREE_QUESTION_LIMIT = 10
 FREE_DOC_LIMIT = 1
 
 
 def get_client() -> Client:
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    url = os.getenv("SUPABASE_URL", "")
+    key = os.getenv("SUPABASE_SECRET_KEY", "")
+    if not url or not key:
+        raise RuntimeError("SUPABASE_URL và SUPABASE_SECRET_KEY chưa được set")
+    return create_client(url, key)
 
 
 def get_or_create_user(clerk_user_id: str) -> dict:
