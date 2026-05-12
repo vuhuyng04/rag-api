@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: rag-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: CLERK_JWKS_URL
+        sync: false
+      - key: ADMIN_USER_ID
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: LANGSMITH_API_KEY
+        sync: false
