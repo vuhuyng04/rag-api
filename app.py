@@ -22,12 +22,27 @@ from database import (
     get_user_plan,
     increment_daily_usage,
 )
-from main import BATCH_SIZE, build_client, build_vector_store, filter_existing_chunks, split_documents
+from main import BATCH_SIZE, COLLECTION_NAME, build_client, build_vector_store, filter_existing_chunks, split_documents
+from qdrant_client.models import PayloadSchemaType
 from rag_service import run_rag
 
 from langchain_community.document_loaders import PyMuPDFLoader
 
 app = FastAPI(title="DocuChat API", version="1.0.0")
+
+
+@app.on_event("startup")
+def create_qdrant_indexes() -> None:
+    try:
+        client = build_client()
+        if client.collection_exists(COLLECTION_NAME):
+            client.create_payload_index(
+                collection_name=COLLECTION_NAME,
+                field_name="metadata.user_id",
+                field_schema=PayloadSchemaType.KEYWORD,
+            )
+    except Exception:
+        pass
 
 allowed_origins = [
     o.strip()
