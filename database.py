@@ -87,17 +87,17 @@ def get_daily_usage(clerk_user_id: str) -> int:
 def increment_daily_usage(clerk_user_id: str) -> int:
     db = get_client()
     today = date.today().isoformat()
+
+    # Upsert to avoid race condition on first insert
+    db.table("usage").upsert(
+        {"user_id": clerk_user_id, "date": today, "question_count": 0},
+        on_conflict="user_id,date",
+        ignore_duplicates=True,
+    ).execute()
+
     current = get_daily_usage(clerk_user_id)
-
-    if current == 0:
-        db.table("usage").insert({
-            "user_id": clerk_user_id,
-            "date": today,
-            "question_count": 1,
-        }).execute()
-        return 1
-
-    db.table("usage").update({"question_count": current + 1}).eq(
+    new_count = current + 1
+    db.table("usage").update({"question_count": new_count}).eq(
         "user_id", clerk_user_id
     ).eq("date", today).execute()
-    return current + 1
+    return new_count
