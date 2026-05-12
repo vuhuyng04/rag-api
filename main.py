@@ -8,7 +8,7 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_core.documents import Document
 from langchain_experimental.text_splitter import SemanticChunker
 from langchain_openai import OpenAIEmbeddings
-from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
+from langchain_qdrant import QdrantVectorStore, RetrievalMode
 from qdrant_client import QdrantClient
 
 
@@ -29,11 +29,9 @@ def build_client() -> QdrantClient:
 
 def build_vector_store() -> QdrantVectorStore:
     dense_embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-    sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
 
     return QdrantVectorStore.construct_instance(
         embedding=dense_embeddings,
-        sparse_embedding=sparse_embeddings,
         client_options={
             "url": os.getenv("QDRANT_URL"),
             "api_key": os.getenv("QDRANT_API_KEY"),
@@ -41,7 +39,7 @@ def build_vector_store() -> QdrantVectorStore:
             "timeout": TIMEOUT,
         },
         collection_name=COLLECTION_NAME,
-        retrieval_mode=RetrievalMode.HYBRID,
+        retrieval_mode=RetrievalMode.DENSE,
         force_recreate=False,
     )
 
